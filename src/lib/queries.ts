@@ -4,7 +4,7 @@ import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export const POST_CARD_COLUMNS =
-  "id, title, slug, excerpt, cover_image_url, published, view_count, like_count, comment_count, created_at, author:profiles!posts_author_id_fkey(username, full_name, avatar_url)";
+  "id, title, slug, excerpt, content, cover_image_url, published, view_count, like_count, comment_count, created_at, author:profiles!posts_author_id_fkey(username, full_name, avatar_url)";
 
 export const getProfileByUsername = cache(async (username: string) => {
   const supabase = await createClient();

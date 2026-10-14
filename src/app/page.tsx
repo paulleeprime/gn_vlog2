@@ -49,29 +49,21 @@ async function Feed({ searchParams }: { searchParams: SearchParams }) {
         </p>
       )}
 
-      {!viewer && (
-        <section className="flex flex-col items-center px-2 pt-16 pb-6 text-center">
-          <p className="text-[0.7rem] tracking-[0.42em] text-[#8a7b68]">RY</p>
-          <h1 className="mt-6 font-serif text-5xl font-medium tracking-tight sm:text-6xl">
+      <section className="flex flex-col items-center px-2 pt-14 pb-4 text-center">
+          <p className="text-xs tracking-[0.45em] text-[#8a7b68]">RY</p>
+          <h1 className="mt-7 font-serif text-5xl font-medium tracking-tight sm:text-[3.5rem]">
             {site.name}
           </h1>
-          <p className="mt-5 font-serif text-xl text-[#5c5146]">{site.tagline}</p>
-          <div className="mt-9 flex items-center gap-5">
+          <p className="mt-6 font-serif text-[1.65rem] text-[#5c5146]">{site.tagline}</p>
+          <div className="mt-8 flex items-center gap-4">
             <span className="h-px w-16 bg-[#d9cfc0]" />
-            <Image
-              src="/logo.jpg"
-              alt="RY 로고"
-              width={96}
-              height={96}
-              className="h-24 w-24"
-            />
+            <Image src="/logo.jpg" alt="RY 로고" width={36} height={36} className="h-9 w-9" />
             <span className="h-px w-16 bg-[#d9cfc0]" />
           </div>
-          <p className="mt-8 max-w-md text-[1.05rem] leading-8 text-[#6a5e52]">
+          <p className="mt-8 max-w-lg font-serif text-lg leading-9 text-[#6a5e52]">
             {site.description}
           </p>
-        </section>
-      )}
+      </section>
 
       {viewer && (
         <nav className="flex gap-6 border-b border-[#e4d9c8]">
@@ -88,7 +80,7 @@ async function Feed({ searchParams }: { searchParams: SearchParams }) {
         {posts && posts.length > 0 ? (
           posts.map((post) => <PostCard key={post.id} post={post} />)
         ) : (
-          <p className="py-16 text-center text-zinc-500">
+          <p className="py-16 text-center font-serif text-lg text-[#6a5e52]">
             {showFollowing
               ? "팔로우한 사람의 글이 아직 없습니다."
               : "아직 첫 글이 비어 있습니다. 첫 글을 써 보세요."}
@@ -101,7 +93,7 @@ async function Feed({ searchParams }: { searchParams: SearchParams }) {
 
 export default function Home({ searchParams }: PageProps<"/">) {
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-10">
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-10 px-6 py-8">
       <Suspense fallback={<p className="text-sm text-zinc-500">불러오는 중...</p>}>
         <Feed searchParams={searchParams as SearchParams} />
       </Suspense>

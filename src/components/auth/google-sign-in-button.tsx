@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({ className = "" }: { className?: string }) {
   async function signIn() {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
@@ -14,7 +14,7 @@ export function GoogleSignInButton() {
   return (
     <button
       onClick={signIn}
-      className="flex h-12 items-center justify-center gap-3 rounded-full border border-black/10 bg-white px-6 font-medium text-zinc-900 transition-colors hover:bg-zinc-100 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+      className={`flex h-11 items-center justify-center gap-2.5 rounded-full border border-[#e4d9c8] bg-[#fbf8f2] px-5 text-sm font-medium text-[#2c241c] transition-colors hover:bg-white ${className}`}
     >
       <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden>
         <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />

@@ -1,9 +1,10 @@
 import { Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { PostCard } from "@/components/posts/post-card";
 import { getViewer } from "@/lib/auth";
 import { POST_CARD_COLUMNS } from "@/lib/queries";
+import { site } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 type SearchParams = Promise<{ feed?: string; error?: string }>;
@@ -49,32 +50,48 @@ async function Feed({ searchParams }: { searchParams: SearchParams }) {
       )}
 
       {!viewer && (
-        <section className="flex flex-col items-center gap-5 rounded-2xl border border-black/10 px-6 py-12 text-center dark:border-white/15">
-          <h1 className="text-3xl font-bold tracking-tight">나만의 블로그를 시작하세요</h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Google 계정으로 가입하고 글을 쓰고, 다른 사람을 팔로우해 보세요.
+        <section className="flex flex-col items-center px-2 pt-16 pb-6 text-center">
+          <p className="text-[0.7rem] tracking-[0.42em] text-[#8a7b68]">RY</p>
+          <h1 className="mt-6 font-serif text-5xl font-medium tracking-tight sm:text-6xl">
+            {site.name}
+          </h1>
+          <p className="mt-5 font-serif text-xl text-[#5c5146]">{site.tagline}</p>
+          <div className="mt-9 flex items-center gap-5">
+            <span className="h-px w-16 bg-[#d9cfc0]" />
+            <Image
+              src="/logo.jpg"
+              alt="RY 로고"
+              width={96}
+              height={96}
+              className="h-24 w-24"
+            />
+            <span className="h-px w-16 bg-[#d9cfc0]" />
+          </div>
+          <p className="mt-8 max-w-md text-[1.05rem] leading-8 text-[#6a5e52]">
+            {site.description}
           </p>
-          <GoogleSignInButton />
         </section>
       )}
 
-      <nav className="flex gap-6 border-b border-black/10 dark:border-white/10">
-        <Link href="/" className={tabClass(!showFollowing)}>
-          최신 글
-        </Link>
-        {viewer && (
+      {viewer && (
+        <nav className="flex gap-6 border-b border-[#e4d9c8]">
+          <Link href="/" className={tabClass(!showFollowing)}>
+            최신 글
+          </Link>
           <Link href="/?feed=following" className={tabClass(showFollowing)}>
             팔로잉
           </Link>
-        )}
-      </nav>
+        </nav>
+      )}
 
       <section>
         {posts && posts.length > 0 ? (
           posts.map((post) => <PostCard key={post.id} post={post} />)
         ) : (
           <p className="py-16 text-center text-zinc-500">
-            {showFollowing ? "팔로우한 사람의 글이 아직 없습니다." : "아직 올라온 글이 없습니다."}
+            {showFollowing
+              ? "팔로우한 사람의 글이 아직 없습니다."
+              : "아직 첫 글이 비어 있습니다. 첫 글을 써 보세요."}
           </p>
         )}
       </section>

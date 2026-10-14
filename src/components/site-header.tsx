@@ -2,13 +2,14 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Avatar } from "@/components/avatar";
 import { getViewer } from "@/lib/auth";
 import { site } from "@/lib/site";
 
 async function HeaderActions() {
   const viewer = await getViewer();
-  if (!viewer) return null;
+  if (!viewer) return <GoogleSignInButton />;
 
   const username = viewer.profile?.username;
   if (!username) {
@@ -39,10 +40,10 @@ async function HeaderActions() {
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-black/10 dark:border-white/10">
-      <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
-          <Image src="/logo.jpg" alt="" width={36} height={36} className="h-9 w-9" priority />
+    <header className="border-b border-[#e4d9c8]">
+      <div className="mx-auto flex h-[4.5rem] w-full max-w-3xl items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-3 font-serif text-xl font-medium tracking-tight">
+          <Image src="/logo.jpg" alt="" width={40} height={40} className="h-10 w-10" priority />
           {site.name}
         </Link>
         <Suspense fallback={null}>

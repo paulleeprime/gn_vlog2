@@ -1,8 +1,10 @@
 import { Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { Avatar } from "@/components/avatar";
 import { getViewer } from "@/lib/auth";
+import { site } from "@/lib/site";
 
 async function HeaderActions() {
   const viewer = await getViewer();
@@ -39,8 +41,9 @@ export function SiteHeader() {
   return (
     <header className="border-b border-black/10 dark:border-white/10">
       <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between px-6">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          gn vlog
+        <Link href="/" className="flex items-center gap-2.5 text-lg font-bold tracking-tight">
+          <Image src="/logo.jpg" alt="" width={36} height={36} className="h-9 w-9" priority />
+          {site.name}
         </Link>
         <Suspense fallback={null}>
           <HeaderActions />

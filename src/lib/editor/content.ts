@@ -53,3 +53,20 @@ export function extractCoverImage(node: JSONContent): string | null {
 export function hasMeaningfulContent(doc: JSONContent) {
   return extractText(doc).trim().length > 0 || extractCoverImage(doc) !== null;
 }
+
+const filenameAlt = /\.(png|jpe?g|gif|webp)$/i;
+
+export function imagesMissingAlt(node: JSONContent): number {
+  let missing = 0;
+  if (node.type === "image") {
+    const alt = typeof node.attrs?.alt === "string" ? node.attrs.alt.trim() : "";
+    if (!alt || filenameAlt.test(alt)) missing += 1;
+  }
+  for (const child of node.content ?? []) missing += imagesMissingAlt(child);
+  return missing;
+}
+
+export function hasHeading2(node: JSONContent): boolean {
+  if (node.type === "heading" && node.attrs?.level === 2) return true;
+  return (node.content ?? []).some(hasHeading2);
+}

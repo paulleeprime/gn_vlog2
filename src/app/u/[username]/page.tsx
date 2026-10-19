@@ -7,6 +7,7 @@ import { FollowButton } from "@/components/social/follow-button";
 import { getViewer } from "@/lib/auth";
 import { decodeParam, formatCount } from "@/lib/format";
 import { getProfileByUsername, POST_CARD_COLUMNS } from "@/lib/queries";
+import { absoluteUrl } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
 async function Profile({ params }: { params: Promise<{ username: string }> }) {
@@ -45,8 +46,21 @@ async function Profile({ params }: { params: Promise<{ username: string }> }) {
 
   const displayName = profile.full_name ?? profile.username;
 
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: displayName,
+    url: absoluteUrl(`/@${profile.username}`),
+    ...(profile.bio ? { description: profile.bio } : {}),
+    ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(person).replaceAll("<", "\\u003c") }}
+      />
       <header className="flex flex-col gap-5 border-b border-black/10 pb-8 dark:border-white/10 sm:flex-row sm:items-center">
         <Avatar src={profile.avatar_url} name={displayName} size={88} />
         <div className="flex flex-1 flex-col gap-2">

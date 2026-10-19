@@ -31,7 +31,10 @@ export function PostEditor({ userId, initialContent, onChange }: Props) {
     try {
       for (const file of files) {
         const src = await uploadPostImage(file, userId);
-        editor.chain().focus().setImage({ src, alt: file.name }).run();
+        const alt =
+          window.prompt("이미지 설명을 입력하세요. 검색과 화면 낭독기가 이 문장을 사용합니다.", "") ??
+          "";
+        editor.chain().focus().setImage({ src, alt: alt.trim() }).run();
       }
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "이미지 업로드에 실패했습니다.");

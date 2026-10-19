@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { JSONContent } from "@tiptap/react";
@@ -12,9 +13,106 @@ import { getViewer } from "@/lib/auth";
 import { renderPostHTML } from "@/lib/editor/render";
 import { decodeParam, formatCount, formatDate } from "@/lib/format";
 import { getPost } from "@/lib/queries";
+import { absoluteUrl, postDescription, postPath } from "@/lib/seo";
+import { site } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 type Params = Promise<{ username: string; slug: string }>;
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/u/[username]/[slug]">): Promise<Metadata> {
+  const { username, slug } = await params;
+  const result = await getPost(decodeParam(username), decodeParam(slug));
+  if (!result) return { title: "글을 찾을 수 없습니다" };
+
+  const { post, author } = result;
+  const authorName = author.full_name || author.username || "작성자";
+  const description = postDescription(post.lede, post.excerpt);
+  const path = postPath(author.username!, post.slug);
+
+  return {
+    title: `${post.title} · ${authorName}`,
+    description: description || undefined,
+    alternates: { canonical: path },
+    robots: post.published ? undefined : { index: false, follow: false },
+    openGraph: {
+      type: "article",
+      title: post.title,
+      description: description || undefined,
+      url: path,
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      authors: [authorName],
+      images: post.cover_image_url ? [{ url: post.cover_image_url }] : undefined,
+    },
+  };
+}
+
+function PostJsonLd({
+  post,
+  author,
+}: {
+  post: {
+    title: string;
+    lede: string | null;
+    excerpt: string | null;
+    slug: string;
+    created_at: string;
+    updated_at: string;
+    cover_image_url: string | null;
+  };
+  author: { username: string | null; full_name: string | null };
+}) {
+  const path = postPath(author.username!, post.slug);
+  const url = absoluteUrl(path);
+  const description = postDescription(post.lede, post.excerpt);
+  const authorName = author.full_name || author.username;
+  const data = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        headline: post.title,
+        ...(description ? { description } : {}),
+        datePublished: post.created_at,
+        dateModified: post.updated_at,
+        mainEntityOfPage: url,
+        author: {
+          "@type": "Person",
+          name: authorName,
+          url: absoluteUrl(`/@${author.username}`),
+        },
+        ...(post.cover_image_url ? { image: [post.cover_image_url] } : {}),
+        publisher: {
+          "@type": "Organization",
+          name: site.name,
+          logo: { "@type": "ImageObject", url: absoluteUrl("/logo.jpg") },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "홈", item: absoluteUrl("/") },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: `@${author.username}`,
+            item: absoluteUrl(`/@${author.username}`),
+          },
+          { "@type": "ListItem", position: 3, name: post.title, item: url },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replaceAll("<", "\\u003c") }}
+    />
+  );
+}
 
 async function PostView({ params }: { params: Params }) {
   const { username, slug } = await params;
@@ -40,20 +138,39 @@ async function PostView({ params }: { params: Params }) {
 
   return (
     <article className="flex flex-col gap-8">
+      <PostJsonLd post={post} author={author} />
       <header className="flex flex-col gap-5">
+        <nav aria-label="경로" className="text-sm text-[#8a7b68]">
+          <Link href="/" className="hover:underline">
+            홈
+          </Link>
+          <span aria-hidden> / </span>
+          <Link href={authorPath} className="hover:underline">
+            @{author.username}
+          </Link>
+        </nav>
         {!post.published && (
           <span className="w-fit rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
             비공개 글
           </span>
         )}
         <h1 className="text-3xl font-bold leading-tight sm:text-4xl">{post.title}</h1>
+        {post.lede && (
+          <p className="font-serif text-xl leading-9 text-[#5c5146]">{post.lede}</p>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link href={authorPath} className="flex items-center gap-3">
             <Avatar src={author.avatar_url} name={author.full_name ?? author.username} size={40} />
             <div>
               <p className="font-medium">{author.full_name ?? author.username}</p>
               <p className="text-sm text-zinc-500">
-                @{author.username} · {formatDate(post.created_at)}
+                @{author.username} · <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+                {post.updated_at !== post.created_at && (
+                  <>
+                    {" "}
+                    · 수정 <time dateTime={post.updated_at}>{formatDate(post.updated_at)}</time>
+                  </>
+                )}
               </p>
             </div>
           </Link>

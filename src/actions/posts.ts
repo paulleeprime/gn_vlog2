@@ -10,6 +10,7 @@ import {
   hasMeaningfulContent,
   sanitizeContent,
 } from "@/lib/editor/content";
+import { LEDE_MAX } from "@/lib/seo";
 import { slugify } from "@/lib/slugify";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/database.types";
@@ -53,6 +54,7 @@ export async function savePost(
   const viewer = await requireViewerWithUsername();
   const postId = String(formData.get("postId") ?? "") || null;
   const title = String(formData.get("title") ?? "").trim();
+  const lede = String(formData.get("lede") ?? "").trim().slice(0, LEDE_MAX) || null;
   const published = formData.get("published") === "on";
   const content = parseContent(formData.get("content"));
 
@@ -64,6 +66,7 @@ export async function savePost(
 
   const fields = {
     title,
+    lede,
     content: content as Json,
     excerpt: extractExcerpt(content),
     cover_image_url: extractCoverImage(content),

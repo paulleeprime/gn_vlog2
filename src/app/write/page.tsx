@@ -4,7 +4,7 @@ import { PostForm } from "@/components/editor/post-form";
 
 async function NewPost() {
   const viewer = await requireViewerWithUsername();
-  return <PostForm userId={viewer.id} />;
+  return <PostForm userId={viewer.id} username={viewer.username} />;
 }
 
 export default function WritePage() {

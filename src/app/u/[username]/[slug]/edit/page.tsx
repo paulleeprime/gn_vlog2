@@ -20,9 +20,11 @@ async function EditPost({
   return (
     <PostForm
       userId={viewer.id}
+      username={viewer.username}
       post={{
         id: post.id,
         title: post.title,
+        lede: post.lede,
         content: post.content as JSONContent,
         published: post.published,
       }}
